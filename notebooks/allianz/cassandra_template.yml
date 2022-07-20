@@ -175,14 +175,14 @@ jvm:
   ## - pick the max
   ##
   #Changed by Panos
-  maxHeapSize: "2048MB"
+  maxHeapSize: "2048m"
   ## newHeapSize:
   ## A good guideline is 100 MB per CPU core.
   ## - min(100 * num_cores, 1/4 * heap size)
   ## ref: https://docs.datastax.com/en/archived/cassandra/2.0/cassandra/operations/ops_tune_jvm_c.html
   ##
   #Changed by Panos
-  newHeapSize: "64MB"
+  newHeapSize: "64m"
 ## @param command Command for running the container (set to default if not set). Use array form
 ##
 command: []
@@ -267,20 +267,21 @@ nodeAffinityPreset:
 ##
 #Changed by Panos
 affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-          - key: type
-            operator: NotIn
-            values:
-              - control
+#  nodeAffinity:
+#    requiredDuringSchedulingIgnoredDuringExecution:
+#      nodeSelectorTerms:
+#        - matchExpressions:
+#          - key: type
+#            operator: NotIn
+#            values:
+#              - control
 
 
 ## @param nodeSelector Node labels for pod assignment
 ## ref: https://kubernetes.io/docs/user-guide/node-selection/
 ##
-nodeSelector: {}
+nodeSelector: 
+  type: worker
 ## @param tolerations Tolerations for pod assignment
 ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
 ##

@@ -4,3 +4,4 @@
 *.backup
 *.lock.hcl
 .ipynb_checkpoints/
+playground.auto.tfvars

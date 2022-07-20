@@ -17,6 +17,7 @@ Vagrant.configure("2") do |config|
 
     k3d.vm.synced_folder "infra/salt", "/srv/salt"
     k3d.vm.synced_folder "notebooks", "/srv/jupyter/notebooks"
+    k3d.vm.synced_folder "terraform", "/srv/terraform"
 
     k3d.vm.provider "virtualbox" do |vb|
       # Display the VirtualBox GUI when booting the machine

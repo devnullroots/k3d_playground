@@ -1,5 +1,5 @@
 data "azurerm_resource_group" "k8splay_resource_group" {
-    name    = "1-32e326a5-playground-sandbox"
+    name    = var.resource_group
 }
 #Create the network
 
