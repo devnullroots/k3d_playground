@@ -1,0 +1,15 @@
+[Unit]
+Description=jupyter-service
+
+[Service]
+Type=simple
+ExecStart=/srv/jupyter/venv/bin/jupyter-notebook --config=/srv/jupyter/config.py
+WorkingDirectory=/srv/jupyter/notebooks
+User=root
+group=root
+PIDFile=/run/jupyter-notebook.pid
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target

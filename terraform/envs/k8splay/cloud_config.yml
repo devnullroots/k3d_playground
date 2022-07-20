@@ -1,0 +1,18 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - git
+  - curl
+write_files:
+  - owner: root
+    path: /srv/minion
+    content: ${minion_config}
+runcmd:
+  - cd /tmp
+  - git clone https://github.com/devnullroots/k3d_playground.git
+  - cp -r /tmp/k3d_playground/infra/salt /srv/salt
+  - curl -o bootstrap-salt.sh -L https://bootstrap.saltproject.io
+  - sh bootstrap-salt.sh 
+  - cp /srv/minion /etc/salt/minion
+  - systemctl restart salt-minion
+  - salt-call state.highstate

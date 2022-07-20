@@ -1,0 +1,6 @@
+.vagrant/
+.terraform/
+*.tfstate
+*.backup
+*.lock.hcl
+.ipynb_checkpoints/

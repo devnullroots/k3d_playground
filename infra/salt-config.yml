@@ -1,0 +1,18 @@
+file_client: local
+
+id: k3d
+
+file_roots:
+  base: 
+    - /srv/salt/base/stack
+
+pillar_roots:
+  base:
+    - /srv/salt/base/pillar
+
+grains:
+  vplatform: vagrant
+
+use_superseded:
+  - module.run
+
