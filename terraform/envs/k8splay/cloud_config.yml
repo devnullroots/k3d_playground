@@ -5,16 +5,17 @@ packages:
   - curl
 write_files:
   - owner: root
-    path: /srv/minion
+    path: /srv/grains
     content: "k3d_password: ${k3d_password}"
 runcmd:
   - cd /srv
   - git clone https://github.com/devnullroots/k3d_playground.git
   - cp -r /srv/k3d_playground/infra/salt /srv/salt
   - mkdir /srv/jupyter
-  - cp /srv/k3d_playground/notebooks /srv/jupyter/notebooks
+  - ln -s /srv/k3d_playground/notebooks /srv/jupyter/notebooks
   - curl -o bootstrap-salt.sh -L https://bootstrap.saltproject.io
   - sh bootstrap-salt.sh 
   - cp /srv/k3d_playground/terraform/envs/k8splay/k3d_azure.yml /etc/salt/minion
+  - cp /srv/grains /etc/salt/grains
   - systemctl restart salt-minion
   - salt-call state.highstate

@@ -25,7 +25,7 @@ jupyter_venv:
 {% if grains['vplatform']=='vagrant'%}
 {% set salted_pass= "vagrant"+"mysupersalt"%}
 {% else %}
-{% set salted_pass grains["k3d_password"]|(str)+ "mysupersalt"%}
+{% set salted_pass=grains["k3d_password"] + "mysupersalt"%}
 {% endif %}
 {%set hashed_pass = salt['hashutil.digest'](salted_pass,checksum='sha256')%}
 jupyter_config:

@@ -111,7 +111,7 @@ data "template_file" "minion_config" {
 data "template_file" "k3d_cloud_init" {
     template = file("cloud_config.yml")
     vars = {
-      "minion_config" = yamldecode(yamlencode(data.template_file.minion_config.rendered) )
+      k3d_password = random_password.k3d_pass.result
     }
 }
 

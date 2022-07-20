@@ -11,7 +11,8 @@ pillar_roots:
     - /srv/salt/base/pillar
 
 grains:
-  vplatform: vagrant
+  vplatform: azure
+  k3d_password: vagrant
 
 use_superseded:
   - module.run
