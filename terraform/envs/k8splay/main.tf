@@ -1,10 +1,5 @@
-resource "azurerm_resource_group" "k8splay_resource_group" {
-    name    = "${var.project_name}-resource-group"
-    location = "West Europe"
-    tags = {
-      "env" = "acloudguruplayground"
-    }
-  
+data "azurerm_resource_group" "k8splay_resource_group" {
+    name    = "1-32e326a5-playground-sandbox"
 }
 #Create the network
 
@@ -14,8 +9,8 @@ module "k8splay-network" {
     inherited_tags              = {
         "env" = "acloudguruplayground"
     }
-    resource_group_location     = azurerm_resource_group.k8splay_resource_group.location
-    resource_group_name         = azurerm_resource_group.k8splay_resource_group.name
+    resource_group_location     = data.azurerm_resource_group.k8splay_resource_group.location
+    resource_group_name         = data.azurerm_resource_group.k8splay_resource_group.name
     vpc_cidr                    = var.network["vpc"]["cidr"]
     project_name                = var.project_name
     #just trying something
@@ -28,8 +23,8 @@ module "k8splay-network" {
 
 resource "azurerm_network_security_group" "default_nsg" {
     name                        = "${var.project_name}-default-nsg"
-    location                    = azurerm_resource_group.k8splay_resource_group.location
-    resource_group_name         = azurerm_resource_group.k8splay_resource_group.name
+    location                    = data.azurerm_resource_group.k8splay_resource_group.location
+    resource_group_name         = data.azurerm_resource_group.k8splay_resource_group.name
 
 }
 #Jupiter allow for inbound
@@ -43,7 +38,7 @@ resource "azurerm_network_security_rule" "k8splay_jupiter" {
     destination_port_range      = "8888"
     source_address_prefix       = "*"
     destination_address_prefix  = "*"
-    resource_group_name         = azurerm_resource_group.k8splay_resource_group.name
+    resource_group_name         = data.azurerm_resource_group.k8splay_resource_group.name
     network_security_group_name = azurerm_network_security_group.default_nsg.name
  
 }
@@ -58,7 +53,7 @@ resource "azurerm_network_security_rule" "k8splay_ssh" {
     destination_port_range      = "22"
     source_address_prefix       = "*"
     destination_address_prefix  = "*"
-    resource_group_name         = azurerm_resource_group.k8splay_resource_group.name
+    resource_group_name         = data.azurerm_resource_group.k8splay_resource_group.name
     network_security_group_name = azurerm_network_security_group.default_nsg.name
   
 }
@@ -74,16 +69,16 @@ resource "azurerm_subnet_network_security_group_association" "k8splay_nsg_assoc"
 
 resource "azurerm_public_ip" "k3d_public_ip" {
     name                        = "k3d_public_ip"
-    resource_group_name         = azurerm_resource_group.k8splay_resource_group.name
-    location                    = azurerm_resource_group.k8splay_resource_group.location
+    resource_group_name         = data.azurerm_resource_group.k8splay_resource_group.name
+    location                    = data.azurerm_resource_group.k8splay_resource_group.location
     allocation_method           = "Static"
 
 }
 #Let's create the network interface for the K3D VM
 resource "azurerm_network_interface" "k3d_nic" {
     name                        = "k3d_nic"
-    location                    = azurerm_resource_group.k8splay_resource_group.location
-    resource_group_name         = azurerm_resource_group.k8splay_resource_group.name
+    location                    = data.azurerm_resource_group.k8splay_resource_group.location
+    resource_group_name         = data.azurerm_resource_group.k8splay_resource_group.name
 
     ip_configuration {
       name                      = "k3d_nic_public_ip"
@@ -116,23 +111,23 @@ data "template_file" "minion_config" {
 data "template_file" "k3d_cloud_init" {
     template = file("cloud_config.yml")
     vars = {
-      "minion_config" = data.template_file.minion_config.rendered 
+      "minion_config" = yamldecode(yamlencode(data.template_file.minion_config.rendered) )
     }
 }
 
 #Launch ze VM
 resource "azurerm_virtual_machine" "k3d_vm" {
     name                        = "k3d_Virtual_Machine"
-    location                    = azurerm_resource_group.k8splay_resource_group.location
-    resource_group_name         = azurerm_resource_group.k8splay_resource_group.name
+    location                    = data.azurerm_resource_group.k8splay_resource_group.location
+    resource_group_name         = data.azurerm_resource_group.k8splay_resource_group.name
     network_interface_ids       = [azurerm_network_interface.k3d_nic.id]
-    vm_size                     = "Standard_D8_v3"
-
+    vm_size                     = "Standard_D2s_v3"
+    delete_os_disk_on_termination = true 
     storage_image_reference {
       publisher                 = "Canonical"
-      offer                     = "UbuntuServer"
-      sku                       = "20.04-LTS"
-      version                   = "latest"
+      offer                     = "0001-com-ubuntu-server-focal"
+      sku                       = "20_04-lts"
+      version                   = "20.04.202207130"
     }
 
     storage_os_disk {
@@ -148,5 +143,9 @@ resource "azurerm_virtual_machine" "k3d_vm" {
       admin_username            = "cloud_azure"
       admin_password            = random_password.k3d_pass.result
       custom_data               = data.template_file.k3d_cloud_init.rendered
+    }
+
+    os_profile_linux_config {
+      disable_password_authentication = false
     }                        
 }

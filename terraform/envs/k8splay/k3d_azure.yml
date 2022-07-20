@@ -11,7 +11,6 @@ pillar_roots:
     - /srv/salt/base/pillar
 
 grains:
-  k3d_password: ${k3d_password}
   vplatform: azure
 
 use_superseded:
